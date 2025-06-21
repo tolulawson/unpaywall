@@ -1,1 +1,36 @@
+# Build outputs
+dist/
+unpaywall.zip
+
+# Dependencies
+node_modules/
+
+# Chrome extension files
+*.crx
+*.pem
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+bun-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local

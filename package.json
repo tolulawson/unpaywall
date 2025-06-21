@@ -1,0 +1,19 @@
+{
+  "name": "unpaywall",
+  "version": "0.0.1",
+  "description": "Unpaywall extension",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/chrome": "^0.0.326"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "build": "bun run build.ts",
+    "release": "bun run release.ts"
+  }
+}

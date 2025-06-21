@@ -4,7 +4,6 @@
   "version": "1.0",
   "description": "Remove paywalls from news websites",
   "permissions": ["activeTab"],
-  "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "scripts/background.js"
   },
