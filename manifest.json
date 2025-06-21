@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Unpaywall",
+  "version": "1.0",
+  "description": "Remove paywalls from news websites",
+  "permissions": ["activeTab"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "icons": {
+    "128": "logo.png"
+  },
+  "action": {
+    "default_title": "Unpaywall"
+  }
+}
