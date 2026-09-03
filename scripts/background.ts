@@ -1,47 +1,60 @@
 const CONTEXT_MENU_ID = "open-in-archive";
+const CONTEXT_MENU_TITLE = "Open via Unpaywall";
+const ARCHIVE_ORIGIN = "https://archive.ph";
 
-async function resolveUrl(targetUrl: string): Promise<string> {
-  const controller = new AbortController();
-  try {
-    const response = await fetch(targetUrl, {
-      method: "GET",
-      redirect: "follow",
-      signal: controller.signal,
-    });
-    controller.abort();
-    return response.url;
-  } catch {
-    return targetUrl;
-  }
+function getCanonicalArticleUrl(targetUrl: string): string {
+  const url = new URL(targetUrl);
+  return `${url.origin}${url.pathname}`;
 }
 
 function getArchiveUrl(targetUrl: string): string {
-  const url = new URL(targetUrl);
-  const cleanUrl = `${url.origin}${url.pathname}`;
-  return `https://archive.ph/o/${cleanUrl}`;
+  return `${ARCHIVE_ORIGIN}/newest/${getCanonicalArticleUrl(targetUrl)}`;
 }
 
-// Register context menu on install
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: CONTEXT_MENU_ID,
-    title: "Unpaywall",
-    contexts: ["link"],
+async function openInArchive(
+  targetUrl: string,
+  destination: { type: "new-tab" } | { type: "current-tab"; tabId: number },
+): Promise<void> {
+  const archiveUrl = getArchiveUrl(targetUrl);
+
+  if (destination.type === "new-tab") {
+    await chrome.tabs.create({ url: archiveUrl, active: true });
+    return;
+  }
+
+  await chrome.tabs.update(destination.tabId, { url: archiveUrl });
+}
+
+function registerContextMenu(): void {
+  chrome.contextMenus.remove(CONTEXT_MENU_ID, () => {
+    void chrome.runtime.lastError;
+
+    chrome.contextMenus.create({
+      id: CONTEXT_MENU_ID,
+      title: CONTEXT_MENU_TITLE,
+      contexts: ["link"],
+    });
   });
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  registerContextMenu();
 });
 
-// Handle context menu click
+chrome.runtime.onStartup.addListener(() => {
+  registerContextMenu();
+});
+
+registerContextMenu();
+
 chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId === CONTEXT_MENU_ID && info.linkUrl) {
-    const resolvedUrl = await resolveUrl(info.linkUrl);
-    chrome.tabs.create({ url: getArchiveUrl(resolvedUrl) });
+    await openInArchive(info.linkUrl, { type: "new-tab" });
   }
 });
 
-// Handle toolbar icon click
 chrome.action.onClicked.addListener(async (tab) => {
   if (tab.url && tab.id) {
-    const resolvedUrl = await resolveUrl(tab.url);
-    chrome.tabs.update(tab.id, { url: getArchiveUrl(resolvedUrl) });
+    await openInArchive(tab.url, { type: "current-tab", tabId: tab.id });
   }
-}); 
+});
